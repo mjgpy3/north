@@ -1,3 +1,5 @@
+{-# LANGUAGE OverloadedStrings #-}
+
 module North.Parse
     ( tokenize
     ) where
@@ -21,11 +23,16 @@ tokenizeLine c l t =
         Nothing ->
           let
             (term, rest') = T.break ((`any` special) . isSpecial) t
+            continue tok' = Token {line=l, column=c, tok=tok'}:tokenizeLine (c+T.length term) l rest'
           in
             case (readMay (T.unpack term), readMay (T.unpack term)) of
-              (Just num, _) -> Token {line=l, column=c, tok=IntLiteral num}:tokenizeLine (c+T.length term) l rest'
-              (_, Just num) -> Token {line=l, column=c, tok=FloatLiteral num}:tokenizeLine (c+T.length term) l rest'
-              _ -> Token {line=l, column=c, tok=Ident term}:tokenizeLine (c+T.length term) l rest'
+              (Just num, _) -> continue $ IntLiteral num
+              (_, Just num) -> continue $ FloatLiteral num
+              _ ->
+                case term of
+                  "var" -> continue Var
+                  "const" -> continue Const
+                  _ -> continue $ Ident term
   where
     isSpecial chr (isSpecial', _) = isSpecial' chr
     special = [ ((== '('), const OpenParen)

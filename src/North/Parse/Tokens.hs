@@ -24,4 +24,6 @@ data RawToken =
   | Whitespace Char
   | IntLiteral Integer
   | FloatLiteral Sci.Scientific
+  | Var
+  | Const
   deriving (Show, Eq)
