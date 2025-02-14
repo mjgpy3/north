@@ -22,5 +22,6 @@ data RawToken =
   | Semicolon
   -- Storing for string literals later
   | Whitespace Char
-  | NumberLiteral Sci.Scientific
+  | IntLiteral Integer
+  | FloatLiteral Sci.Scientific
   deriving (Show, Eq)
