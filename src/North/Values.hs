@@ -8,4 +8,5 @@ data Value
   | NInt Integer
   | NFloat Sci.Scientific
   | NString T.Text
+  | Unit
   deriving (Show, Eq)

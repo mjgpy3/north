@@ -26,6 +26,10 @@ source-repository head
 library
   exposed-modules:
       North
+      North.Eval
+      North.Eval.Effects
+      North.Eval.Env
+      North.Eval.Errors
       North.Parse
       North.Parse.Comments
       North.Parse.Errors
@@ -35,6 +39,8 @@ library
       North.Parse.Tokens
       North.Parse.Whitespace
       North.TopLevelTerms
+      North.Types
+      North.Types.SloppySignatures
       North.Values
   other-modules:
       Paths_north
@@ -45,6 +51,7 @@ library
   ghc-options: -Wall -Wcompat -Widentities -Wincomplete-record-updates -Wincomplete-uni-patterns -Wmissing-export-lists -Wmissing-home-modules -Wpartial-fields -Wredundant-constraints
   build-depends:
       base
+    , containers
     , safe
     , scientific
     , text
