@@ -27,7 +27,15 @@ library
   exposed-modules:
       North
       North.Parse
+      North.Parse.Comments
+      North.Parse.Errors
+      North.Parse.SourceLocation
+      North.Parse.Tokenize
+      North.Parse.TokenParser
       North.Parse.Tokens
+      North.Parse.Whitespace
+      North.TopLevelTerms
+      North.Values
   other-modules:
       Paths_north
   autogen-modules:

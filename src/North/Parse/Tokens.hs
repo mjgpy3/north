@@ -5,12 +5,9 @@ module North.Parse.Tokens
 
 import qualified Data.Text as T
 import qualified Data.Scientific as Sci
+import North.Parse.SourceLocation
 
-data Token = Token {
-  line :: Int
-  , column :: Int
-  , tok :: RawToken
-  }
+newtype Token = Token { unToken :: SourceLocation RawToken }
   deriving (Show, Eq)
 
 data RawToken =
