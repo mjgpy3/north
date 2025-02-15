@@ -6,4 +6,5 @@ data Type
   | TFloat
   | TString
   | TWord
+  | TUnit
   deriving (Show, Eq)

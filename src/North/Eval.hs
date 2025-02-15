@@ -10,6 +10,10 @@ import North.Eval.Errors
 import North.Parse.SourceLocation
 import North.TopLevelTerms
 import North.Values
+import North.Types
+import North.Types.TypeOf
+import qualified Data.Text.IO as TIO
+import qualified Data.Text as T
 
 eval :: Env -> TopLevelTerm -> IO (Env, Either EvalError Value)
 eval env term =
@@ -22,11 +26,19 @@ eval env term =
         VarDef name -> pure $ addVar name envState
         ConstDef name value -> pure $ addConst name value envState
 
-performEffect :: EnvState -> Effect -> IO (Env, Either EvalError Value)
+performEffect :: EnvState -> (SourceLocation Effect) -> IO (Env, Either EvalError Value)
 performEffect envState = \case
-  Cr -> do
+  SourceLocation {located=Cr} -> do
     putStrLn ""
     pure (State envState, Right Unit)
+  loc@(SourceLocation {located=ReadFile}) -> do
+    case pop envState of
+      Left err -> pure (State envState, Left err)
+      Right (envState', NString str) -> do
+        text <- TIO.readFile $ T.unpack str
+        pure (State $ push (NString text) envState', Right Unit)
+      Right (envState', nonString) ->
+        pure (State envState', Left $ (fmap (const TString) loc) `TypeExpectedButGot` (typeOf nonString, nonString))
 
 evalValue :: EnvState -> SourceLocation Value -> (Env, Either EvalError Value)
 evalValue envState value = undefined

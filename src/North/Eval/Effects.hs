@@ -7,3 +7,5 @@ module North.Eval.Effects
 data Effect
   -- Print a newline
   = Cr
+  -- Read a file
+  | ReadFile

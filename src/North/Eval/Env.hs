@@ -6,6 +6,8 @@ module North.Eval.Env
     , addUserFactor
     , addVar
     , addConst
+    , pop
+    , push
     ) where
 
 import North.Eval.Effects
@@ -17,7 +19,7 @@ import qualified Data.Map.Strict as Map
 import qualified Data.Text as T
 
 data Env
-  = RequestedEffect Effect EnvState
+  = RequestedEffect (SourceLocation Effect) EnvState
   | State EnvState
 
 data EnvState = EnvState {
@@ -29,10 +31,15 @@ data EnvState = EnvState {
   , effects :: Map.Map T.Text Effect
   }
 
+pop :: EnvState -> Either EvalError (EnvState, Value)
+pop = undefined
+
+push :: Value -> EnvState -> EnvState
+push = undefined
+
 addUserFactor = undefined
 addVar = undefined
 addConst = undefined
-
 
 data Factor
   = UserFactor [SourceLocation Value]

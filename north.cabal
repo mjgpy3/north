@@ -41,6 +41,7 @@ library
       North.TopLevelTerms
       North.Types
       North.Types.SloppySignatures
+      North.Types.TypeOf
       North.Values
   other-modules:
       Paths_north
