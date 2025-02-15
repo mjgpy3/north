@@ -42,5 +42,6 @@ tokenizeLine c l t =
               , ((== '\\'), const Backslash)
               , ((== ':'), const Colon)
               , ((== ';'), const Semicolon)
+              , ((== '"'), const DoubleQuote)
               , (Char.isSpace, Whitespace)
               ]

@@ -15,6 +15,7 @@ import North.Eval.Errors
 import North.Types.SloppySignatures
 import North.Parse.SourceLocation
 import North.Values
+import North.Types
 import qualified Data.Map.Strict as Map
 import qualified Data.Text as T
 

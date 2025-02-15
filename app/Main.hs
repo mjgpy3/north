@@ -8,4 +8,4 @@ import Data.Foldable (for_)
 
 main :: IO ()
 main = do
-  print (parse ": FOO (hi -- there)\n  DUP * DUP 42;")
+  print (parse ": FOO (hi -- there)\n  DUP * DUP 42 \"Here is a string with escaped quotes \"\"\";")

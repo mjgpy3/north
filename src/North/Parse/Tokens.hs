@@ -21,6 +21,7 @@ data RawToken =
   | Whitespace Char
   | IntLiteral Integer
   | FloatLiteral Sci.Scientific
+  | DoubleQuote
   | Var
   | Const
   -- TODO add way to allocate new stack

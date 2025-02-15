@@ -31,13 +31,13 @@ library
       North.Eval.Env
       North.Eval.Errors
       North.Parse
-      North.Parse.Comments
       North.Parse.Errors
+      North.Parse.ParsableTerms
+      North.Parse.Sections
       North.Parse.SourceLocation
       North.Parse.Tokenize
       North.Parse.TokenParser
       North.Parse.Tokens
-      North.Parse.Whitespace
       North.TopLevelTerms
       North.Types
       North.Types.SloppySignatures

@@ -39,6 +39,20 @@ performEffect envState = \case
         pure (State $ push (NString text) envState', Right Unit)
       Right (envState', nonString) ->
         pure (State envState', Left $ (fmap (const TString) loc) `TypeExpectedButGot` (typeOf nonString, nonString))
+  loc@(SourceLocation {located=Print}) -> do
+    case pop envState of
+      Left err -> pure (State envState, Left err)
+      Right (envState', value) -> do
+        print value
+        pure (State envState', Right Unit)
+  loc@(SourceLocation {located=PrintLine}) -> do
+    case pop envState of
+      Left err -> pure (State envState, Left err)
+      Right (envState', NString str) -> do
+        putStr $ T.unpack str
+        pure (State envState', Right Unit)
+      Right (envState', nonString) ->
+        pure (State envState', Left $ (fmap (const TString) loc) `TypeExpectedButGot` (typeOf nonString, nonString))
 
 evalValue :: EnvState -> SourceLocation Value -> (Env, Either EvalError Value)
 evalValue envState value = undefined
