@@ -6,6 +6,7 @@ import North.Values
 
 data EvalError
   = TypeExpectedButGot (SourceLocation Type) (Type, Value)
+  | TypeExpectedButGot' Type (Type, Value)
   | StackUnderflow
   | Located (SourceLocation EvalError)
   deriving (Show, Eq)

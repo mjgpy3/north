@@ -4,6 +4,7 @@ data Type
   = TVar Char
   | TInt
   | TFloat
+  | TNum
   | TString
   | TWord
   | TUnit

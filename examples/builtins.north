@@ -1,1 +1,5 @@
-42 dup trace-stack
+(TODO adding assert will make these actual tests)
+42
+  dup
+  +
+  trace-stack
