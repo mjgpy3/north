@@ -1,10 +1,10 @@
-\ Dup works
+\ Dup
 42
 dup
 =
 assert
 
-\ Basic math works
+\ Basic math
 12
 9  
 +
