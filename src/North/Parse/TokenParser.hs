@@ -82,8 +82,14 @@ parseTokens = \case
     value <- parseValue valueTok
     Right $ (TopLevelValue value):defs
 
-  -- Top-level strinng
+  -- Top-level string
   (valueTok@(ParsableTerm SourceLocation{located=StringTerm _}):rest) -> do
+    defs <- parseTokens rest
+    value <- parseValue valueTok
+    Right $ (TopLevelValue value):defs
+
+  -- Top-level bool
+  (valueTok@(ParsableTerm SourceLocation{located=BoolTerm _}):rest) -> do
     defs <- parseTokens rest
     value <- parseValue valueTok
     Right $ (TopLevelValue value):defs
@@ -101,4 +107,5 @@ parseValue fullTok@(ParsableTerm loc@SourceLocation{located=tok} ) =
     IntTerm v -> Right $ const (NInt v) <$> loc
     FloatTerm v -> Right $ const (NFloat v) <$> loc
     StringTerm v -> Right $ const (NString v) <$> loc
+    BoolTerm v -> Right $ const (NBool v) <$> loc
     _ -> Left $ ExpectedValueButGot fullTok

@@ -11,3 +11,4 @@ data Effect
   | PrintString
   | TraceStack
   | Trace
+  | Assert

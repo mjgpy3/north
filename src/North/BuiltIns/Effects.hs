@@ -63,4 +63,14 @@ builtInEffects = [
             }
           , factorDefinition = TraceStack
           }
-   )]
+   ),
+   ("assert", DescribedFactor {
+            factorDescription = "Fail unless true is at the top of the stack"
+          , factorSloppySignature = SloppySignature {
+              stackIn=[TBool]
+            , stackOut=[]
+            }
+          , factorDefinition = Assert
+          }
+   )
+   ]

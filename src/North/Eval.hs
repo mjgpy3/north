@@ -82,6 +82,15 @@ performEffect envState loc@(SourceLocation {located=eff}) =
           pure (State envState', Right Unit)
         Right (envState', nonString) ->
           pure (State envState', Left $ (fmap (const TString) loc) `TypeExpectedButGot` (typeOf nonString, nonString))
+    Assert -> do
+      case pop envState of
+        Left err -> pure (State envState, Left err)
+        Right (envState', NBool True) ->
+          pure (State envState', Right Unit)
+        Right (envState', NBool False) -> do
+          pure (State envState', Left AssertionFailed)
+        Right (envState', nonBool) ->
+          pure (State envState', Left $ (fmap (const TBool) loc) `TypeExpectedButGot` (typeOf nonBool, nonBool))
     Trace -> do
       putStrLn $ "TRACE:" <> T.unpack (formatLineColumn loc)
       case envState of

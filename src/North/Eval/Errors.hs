@@ -9,4 +9,5 @@ data EvalError
   | TypeExpectedButGot' Type (Type, Value)
   | StackUnderflow
   | Located (SourceLocation EvalError)
+  | AssertionFailed
   deriving (Show, Eq)
