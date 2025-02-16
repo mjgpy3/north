@@ -42,6 +42,10 @@ parseSections = \case
     ParsableTerm (fmap (const $ IntTerm n) loc):parseSections rest
   Token loc@(SourceLocation {located=FloatLiteral n }):rest ->
     ParsableTerm (fmap (const $ FloatTerm n) loc):parseSections rest
+  Token loc@(SourceLocation {located=TrueTok}):rest ->
+    ParsableTerm (fmap (const $ BoolTerm True) loc):parseSections rest
+  Token loc@(SourceLocation {located=FalseTok}):rest ->
+    ParsableTerm (fmap (const $ BoolTerm False) loc):parseSections rest
   Token loc@(SourceLocation {located=Var}):rest ->
     ParsableTerm (fmap (const $ VarTerm) loc):parseSections rest
   Token loc@(SourceLocation {located=Const}):rest ->
@@ -95,3 +99,5 @@ rebuildText =
       DoubleQuote -> "\""
       Var -> "var"
       Const -> "const"
+      TrueTok -> "true"
+      FalseTok -> "false"

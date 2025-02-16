@@ -107,6 +107,7 @@ evalValue envState loc@(SourceLocation {located=value}) =
     NInt _ -> pure (State $ push value envState, Right Unit)
     NFloat _ -> pure (State $ push value envState, Right Unit)
     NString _ -> pure (State $ push value envState, Right Unit)
+    NBool _ -> pure (State $ push value envState, Right Unit)
     Unit -> pure (State $ push Unit envState, Right Unit)
 
     Word name ->

@@ -24,5 +24,7 @@ data RawToken =
   | DoubleQuote
   | Var
   | Const
+  | TrueTok
+  | FalseTok
   -- TODO add way to allocate new stack
   deriving (Show, Eq)

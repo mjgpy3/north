@@ -33,6 +33,8 @@ tokenizeLine c l t =
                 case term of
                   "var" -> continue Var
                   "const" -> continue Const
+                  "true" -> continue TrueTok
+                  "false" -> continue FalseTok
                   _ -> continue $ Ident term
   where
     loc tok' = Token SourceLocation {column = c, line = l, located=tok'}

@@ -12,3 +12,4 @@ typeOf = \case
   NFloat _ -> TFloat
   NString _ -> TString
   Unit -> TUnit
+  NBool _ -> TBool

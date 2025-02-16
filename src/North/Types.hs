@@ -8,4 +8,5 @@ data Type
   | TString
   | TWord
   | TUnit
+  | TBool
   deriving (Show, Eq)

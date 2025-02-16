@@ -17,6 +17,7 @@ data RawTerm =
   | IntTerm Integer
   | FloatTerm Sci.Scientific
   | StringTerm T.Text
+  | BoolTerm Bool
   -- Too much lift ATM
   -- | Comment T.Text
   | VarTerm

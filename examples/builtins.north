@@ -1,5 +1,5 @@
 \ TODO adding assert will make these actual tests
 42
-  dup
+  dup \ hi
   +
   trace-stack
