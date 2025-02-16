@@ -14,6 +14,7 @@ import North.TopLevelTerms
 import North.Values
 import North.Types
 import North.Types.TypeOf
+import Data.Bifunctor (first, second, Bifunctor)
 import qualified Data.Text.IO as TIO
 import qualified Data.Text as T
 
@@ -51,37 +52,39 @@ eval env term =
         VarDef name -> pure $ addVar name envState
         ConstDef name value -> pure $ addConst name value envState
 
+
 performEffect :: EnvState -> (SourceLocation Effect) -> IO (Env, Either EvalError Value)
-performEffect envState = \case
-  SourceLocation {located=Cr} -> do
-    putStrLn ""
-    pure (State envState, Right Unit)
-  loc@(SourceLocation {located=ReadFile}) -> do
-    case pop envState of
-      Left err -> pure (State envState, Left err)
-      Right (envState', NString str) -> do
-        text <- TIO.readFile $ T.unpack str
-        pure (State $ push (NString text) envState', Right Unit)
-      Right (envState', nonString) ->
-        pure (State envState', Left $ (fmap (const TString) loc) `TypeExpectedButGot` (typeOf nonString, nonString))
-  loc@(SourceLocation {located=Print}) -> do
-    case pop envState of
-      Left err -> pure (State envState, Left err)
-      Right (envState', value) -> do
-        print value
-        pure (State envState', Right Unit)
-  loc@(SourceLocation {located=PrintString}) -> do
-    case pop envState of
-      Left err -> pure (State envState, Left err)
-      Right (envState', NString str) -> do
-        putStr $ T.unpack str
-        pure (State envState', Right Unit)
-      Right (envState', nonString) ->
-        pure (State envState', Left $ (fmap (const TString) loc) `TypeExpectedButGot` (typeOf nonString, nonString))
+performEffect envState loc@(SourceLocation {located=eff}) =
+  addLocationToError loc $ case eff of
+    Cr -> do
+      putStrLn ""
+      pure (State envState, Right Unit)
+    ReadFile -> do
+      case pop envState of
+        Left err -> pure (State envState, Left err)
+        Right (envState', NString str) -> do
+          text <- TIO.readFile $ T.unpack str
+          pure (State $ push (NString text) envState', Right Unit)
+        Right (envState', nonString) ->
+          pure (State envState', Left $ (fmap (const TString) loc) `TypeExpectedButGot` (typeOf nonString, nonString))
+    Print -> do
+      case pop envState of
+        Left err -> pure (State envState, Left err)
+        Right (envState', value) -> do
+          print value
+          pure (State envState', Right Unit)
+    PrintString -> do
+      case pop envState of
+        Left err -> pure (State envState, Left err)
+        Right (envState', NString str) -> do
+          putStr $ T.unpack str
+          pure (State envState', Right Unit)
+        Right (envState', nonString) ->
+          pure (State envState', Left $ (fmap (const TString) loc) `TypeExpectedButGot` (typeOf nonString, nonString))
 
 evalValue :: EnvState -> SourceLocation Value -> IO (Env, Either EvalError Value)
 evalValue envState loc@(SourceLocation {located=value}) =
-  case value of
+  addLocationToError loc $ case value of
     -- Simple values go on the stack
     NInt _ -> pure (State $ push value envState, Right Unit)
     NFloat _ -> pure (State $ push value envState, Right Unit)
@@ -102,3 +105,6 @@ evalValue envState loc@(SourceLocation {located=value}) =
           pure (RequestedEffect (fmap (const effect) loc) envState, Right Unit)
         -- Unknown names go on the stack
         NotFound -> pure (State $ push value envState, Right Unit)
+
+addLocationToError :: (Functor f, Bifunctor p1, Bifunctor p2) => SourceLocation a1 -> f (p1 a2 (p2 EvalError c)) -> f (p1 a2 (p2 EvalError c))
+addLocationToError loc = fmap (second (first (\err -> Located $ fmap (const err) loc)))

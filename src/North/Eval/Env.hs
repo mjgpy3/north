@@ -65,8 +65,9 @@ data NameLookupResult
   | NotFound
 
 pop :: EnvState -> Either EvalError (EnvState, Value)
-pop envState@EnvState{stack=(v:vs)} =
-  Right (envState{stack=vs}, v)
+pop = \case
+  envState@EnvState{stack=(v:vs)} -> Right (envState{stack=vs}, v)
+  _ -> Left StackUnderflow
 
 push :: Value -> EnvState -> EnvState
 push v envState =

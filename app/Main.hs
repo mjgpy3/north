@@ -20,8 +20,13 @@ main =
       contents <- TIO.readFile file
       case parse contents of
         Left err -> do
-          putStrLn "Error: "
+          putStrLn "Error Parsing: "
           print err
         Right terms -> do
           result <- evalMany envWithBuiltIns terms
-          print $ snd result
+          case snd result of
+            Left err -> do
+              putStrLn "Error Evaluating: "
+              print err
+            Right _ok ->
+              pure ()
