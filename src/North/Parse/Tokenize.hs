@@ -17,7 +17,7 @@ tokenize = concatMap (uncurry $ tokenizeLine 0) . zip [0..]  . T.lines
 tokenizeLine :: Int -> Int -> T.Text -> [Token]
 tokenizeLine c l t =
   case T.uncons t of
-    Nothing -> []
+    Nothing -> [loc $ Whitespace '\n']
     Just (chr, rest) ->
       case List.find (isSpecial chr) special of
         Just (_, mkToken) -> loc (mkToken chr):tokenizeLine (c+1) l rest
