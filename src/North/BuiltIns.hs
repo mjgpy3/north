@@ -32,6 +32,15 @@ envWithBuiltIns = State emptyEnvState {
                }
              , factorDefinition = PrintString
              }
+      ),
+      ("read-file", DescribedFactor {
+               factorDescription = "Read the file whose name is at the top of the stack"
+             , factorSloppySignature = SloppySignature {
+                 stackIn=[TString]
+               , stackOut=[TString]
+               }
+             , factorDefinition = ReadFile
+             }
       )]
   }
 
