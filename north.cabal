@@ -27,6 +27,8 @@ library
   exposed-modules:
       North
       North.BuiltIns
+      North.BuiltIns.Effects
+      North.BuiltIns.Factors
       North.Eval
       North.Eval.DescribedFactor
       North.Eval.Effects

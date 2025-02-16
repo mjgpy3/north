@@ -15,6 +15,7 @@ import North.Values
 import North.Types
 import North.Types.TypeOf
 import Data.Bifunctor (first, second, Bifunctor)
+import Data.Foldable (for_)
 import qualified Data.Text.IO as TIO
 import qualified Data.Text as T
 
@@ -81,6 +82,23 @@ performEffect envState loc@(SourceLocation {located=eff}) =
           pure (State envState', Right Unit)
         Right (envState', nonString) ->
           pure (State envState', Left $ (fmap (const TString) loc) `TypeExpectedButGot` (typeOf nonString, nonString))
+    Trace -> do
+      putStrLn $ "TRACE:" <> T.unpack (formatLineColumn loc)
+      case envState of
+        EnvState {stack=[]} -> do
+          putStrLn "  <empty-stack>"
+          pure (State envState, Right Unit)
+        EnvState {stack=(value:_)} -> do
+          putStr "  "
+          print value
+          pure (State envState, Right Unit)
+    TraceStack -> do
+      putStrLn $ "TRACE STACK:" <> T.unpack (formatLineColumn loc)
+      for_ (stack envState) $ \value -> do
+        putStr "  "
+        print value
+      putStrLn "<end-of-stack>"
+      pure (State envState, Right Unit)
 
 evalValue :: EnvState -> SourceLocation Value -> IO (Env, Either EvalError Value)
 evalValue envState loc@(SourceLocation {located=value}) =
@@ -99,7 +117,7 @@ evalValue envState loc@(SourceLocation {located=value}) =
         FoundFactor (UserFactor values) ->
           evalManyValues envState values
         FoundFactor (NonUserFactor (BuiltIn (DescribedFactor { factorDefinition=builtIn }))) ->
-          pure $ builtIn $ State envState
+          pure $ first State $ builtIn envState
         -- Know effects get requested
         FoundEffect effect ->
           pure (RequestedEffect (fmap (const effect) loc) envState, Right Unit)

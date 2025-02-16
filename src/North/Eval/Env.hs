@@ -13,6 +13,7 @@ module North.Eval.Env
     , lookupName
     , NameLookupResult (..)
     , BuiltInFactor(..)
+    , FactorDefinition
     ) where
 
 import Control.Applicative ((<|>))
@@ -81,6 +82,6 @@ data Factor
   = UserFactor [SourceLocation Value]
   | NonUserFactor BuiltInFactor
 
-type FactorDefinition = Env -> (Env, Either EvalError Value)
+type FactorDefinition = EnvState -> (EnvState, Either EvalError Value)
 
 data BuiltInFactor = BuiltIn (DescribedFactor FactorDefinition)
