@@ -1,11 +1,27 @@
 {-# LANGUAGE OverloadedStrings #-}
+{-# LANGUAGE LambdaCase #-}
 
 module Main (main) where
 
 import North
 import North.Parse
+import North.Eval
 import Data.Foldable (for_)
+import North.BuiltIns
+import North.Eval
+import qualified System.Environment as Env
+import qualified Data.Text.IO as TIO
 
 main :: IO ()
-main = do
-  print (parse ": FOO (hi -- there)\n  DUP * DUP 42 \"Here is a string with escaped quotes \"\"\";")
+main =
+  Env.getArgs >>= \case
+    [] -> print (parse ": FOO (hi -- there)\n  DUP * DUP 42 \"Here is a string with escaped quotes \"\"\";")
+    [file] -> do
+      contents <- TIO.readFile file
+      case parse contents of
+        Left err -> do
+          putStrLn "Error: "
+          print err
+        Right terms -> do
+          result <- evalMany envWithBuiltIns terms
+          print $ snd result

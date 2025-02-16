@@ -26,7 +26,9 @@ source-repository head
 library
   exposed-modules:
       North
+      North.BuiltIns
       North.Eval
+      North.Eval.DescribedFactor
       North.Eval.Effects
       North.Eval.Env
       North.Eval.Errors
@@ -70,6 +72,7 @@ executable north-exe
   build-depends:
       base >=4.7 && <5
     , north
+    , text
   default-language: Haskell2010
 
 test-suite north-test
@@ -85,4 +88,5 @@ test-suite north-test
   build-depends:
       base >=4.7 && <5
     , north
+    , text
   default-language: Haskell2010
