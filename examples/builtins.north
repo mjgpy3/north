@@ -1,5 +1,15 @@
-\ TODO adding assert will make these actual tests
+\ Dup works
 42
-  dup \ hi
-  +
-  trace-stack
+dup
+=
+assert
+
+\ Basic math works
+12
+9  
++
+2
+*
+42
+=
+assert

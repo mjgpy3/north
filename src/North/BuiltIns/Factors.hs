@@ -64,5 +64,17 @@ builtInFactors = [
                 (NFloat _, nonNumber) -> Left $ TNum `TypeExpectedButGot'` (typeOf nonNumber, nonNumber)
                 (nonNumber, _) -> Left $ TNum `TypeExpectedButGot'` (typeOf nonNumber, nonNumber)
           }
+   ),
+   ("=", DescribedFactor {
+            factorDescription = "Test if two values are equal"
+          , factorSloppySignature = SloppySignature {
+              stackIn=[TVar 'a', TVar 'b']
+            , stackOut=[TBool]
+            }
+          , factorDefinition = \envState -> either (second Left . (envState, )) ((, Right Unit)) $ do
+              (envState', a) <- pop envState
+              (envState'', b) <- pop envState'
+              pure $ push (NBool $ a == b) envState''
+          }
    )
    ]
