@@ -13,3 +13,5 @@ assert
 42
 =
 assert
+
+"(PASS)" say cr
