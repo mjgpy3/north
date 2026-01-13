@@ -15,7 +15,7 @@ import qualified Data.Text.IO as TIO
 main :: IO ()
 main =
   Env.getArgs >>= \case
-    [] -> print (parse ": FOO (hi -- there)\n  DUP * DUP 42 \"Here is a string with escaped quotes \"\"\";")
+    [] -> print (parse ": FOO (hi -- there)\n  DUP [a,b,c]?->[a,*] []? * DUP 42 \"Here is a string with escaped quotes \"\"\";")
     [file] -> do
       contents <- TIO.readFile file
       case parse contents of

@@ -8,6 +8,8 @@ import North.Parse.SourceLocation
 import North.TopLevelTerms
 import North.Parse.ParsableTerms
 import North.Parse.Errors (ParseError(..))
+import qualified Data.Text as T
+import qualified Data.Char as Char
 
 -- TODO accumulate errors
 parseTokens :: [ParsableTerm] -> Either ParseError [TopLevelTerm]
@@ -100,12 +102,77 @@ parseTokens = \case
     value <- parseValue valueTok
     Right $ (TopLevelValue value):defs
 
+  -- Top-level pattern
+  (valueTok@(ParsableTerm SourceLocation{located=PatternTerm _}):rest) -> do
+    defs <- parseTokens rest
+    value <- parseValue valueTok
+    Right $ (TopLevelValue value):defs
+
 parseValue :: ParsableTerm -> Either ParseError (SourceLocation Value)
 parseValue fullTok@(ParsableTerm loc@SourceLocation{located=tok} ) =
   case tok of
     IdentTerm name -> Right $ const (Word name) <$> loc
+    PatternTerm pat -> do
+      parsedPattern <- parsePattern fullTok $ T.unpack pat
+      Right $ const (Pattern parsedPattern) <$> loc
     IntTerm v -> Right $ const (NInt v) <$> loc
     FloatTerm v -> Right $ const (NFloat v) <$> loc
     StringTerm v -> Right $ const (NString v) <$> loc
     BoolTerm v -> Right $ const (NBool v) <$> loc
     _ -> Left $ ExpectedValueButGot fullTok
+
+parsePattern :: ParsableTerm -> String -> Either ParseError TransformCheck
+parsePattern term raw = do
+  (lhs, rest) <- parseStackPattern (Left ()) raw
+  (op, rest') <- parseOp rest
+  case op of
+    Check' -> do
+      ensureEmpty rest'
+      Right $ Check lhs
+    Transform' -> do
+      (rhs, rest'') <- parseStackPattern (Right ()) rest'
+      ensureEmpty rest''
+      Right $ Transform lhs rhs
+    CheckedTransform' -> do
+      (rhs, rest'') <- parseStackPattern (Right ()) rest'
+      ensureEmpty rest''
+      Right $ CheckedTransform lhs rhs
+  where
+    ensureEmpty = \case
+      [] -> pure ()
+      chrs -> Left $ UnexpectedTrailingPatternChars term chrs
+
+    parseOp = \case
+      ('?':'-':'>':rest) -> Right (CheckedTransform', rest)
+      ('-':'>':rest) -> Right (Transform', rest)
+      ('?':rest) -> Right (Check', rest)
+      vs -> Left $ ExpectedPatternOpGot term vs
+
+    parseStackPattern side = \case
+      ('[':content) -> go (StackPattern [] False) content
+      _ -> Left $ PatternMustStartWithOpen side term
+      where
+        go acc = \case
+          (',':',':_) -> Left $ MissingPatternElement side term
+          ('*':',':_) -> Left $ PatternTailMustBeFinal side term
+          (c:',':rest) | isPatternVertabra c -> go acc { vertabra=vertabra acc <> [c] } rest
+          ('*':']':rest) -> Right (acc {hasTail=True}, rest)
+          (c:']':rest) | isPatternVertabra c -> Right ( acc {vertabra=vertabra acc <> [c]}, rest )
+          (']':rest) -> Right (acc, rest)
+          (c:_) -> Left $ UnexpectedCharPattern side term c
+          [] -> Left $ UnterminatedPattern side term
+
+data OpName
+  = Check'
+  | Transform'
+  | CheckedTransform'
+
+--  ('[':rest) -> parseLhs ( StackPattern [] False ) rest
+--  _ -> Left $ PatternMustBeginWithSquare term
+--  where
+--    parseLhs :: StackPattern -> [Char] -> Either ParseError TransformCheck
+--    parseLhs lhs = \case
+
+
+isPatternVertabra :: Char -> Bool
+isPatternVertabra c = Char.isAlpha c && Char.isLower c

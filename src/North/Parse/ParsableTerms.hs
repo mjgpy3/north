@@ -12,6 +12,7 @@ newtype ParsableTerm = ParsableTerm  { unTerm :: SourceLocation RawTerm }
 
 data RawTerm =
   IdentTerm T.Text
+  | PatternTerm T.Text
   | ColonTerm
   | SemicolonTerm
   | IntTerm Integer

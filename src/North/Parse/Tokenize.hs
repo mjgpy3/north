@@ -38,7 +38,6 @@ tokenizeLine c l t =
                   _ -> continue $ Ident term
   where
     loc tok' = Token SourceLocation {column = c, line = l, located=tok'}
-    isSpecial chr (isSpecial', _) = isSpecial' chr
     special = [ ((== '('), const OpenParen)
               , ((== ')'), const CloseParen)
               , ((== '\\'), const Backslash)
@@ -47,3 +46,6 @@ tokenizeLine c l t =
               , ((== '"'), const DoubleQuote)
               , (Char.isSpace, Whitespace)
               ]
+
+isSpecial :: t1 -> (t1 -> t2, b) -> t2
+isSpecial chr (isSpecial', _) = isSpecial' chr

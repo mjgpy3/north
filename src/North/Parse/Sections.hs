@@ -36,6 +36,8 @@ parseSections = \case
     ParsableTerm (fmap (const ColonTerm) loc):parseSections rest
   Token loc@(SourceLocation {located=Semicolon }):rest ->
     ParsableTerm (fmap (const SemicolonTerm) loc):parseSections rest
+  Token loc@(SourceLocation {located=Ident n }):rest | "[" `T.isPrefixOf` n ->
+    ParsableTerm (fmap (const $ PatternTerm n) loc):parseSections rest
   Token loc@(SourceLocation {located=Ident n }):rest ->
     ParsableTerm (fmap (const $ IdentTerm n) loc):parseSections rest
   Token loc@(SourceLocation {located=IntLiteral n }):rest ->
