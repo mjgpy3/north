@@ -78,7 +78,7 @@ builtInFactors = [
           }
    ),
    ("pick", DescribedFactor {
-            factorDescription = "Duplicates an item by index. The top indicates the index of the item below (zero-based) to duplicate"
+            factorDescription = "Duplicates an item by index. The top number indicates the index of the item below (zero-based) to pick"
           , factorSloppySignature = SloppySignature {
               stackIn=[TNum, TVar 'a', TVar 'b', TVar 'c']
             , stackOut=[TVar 'd']
