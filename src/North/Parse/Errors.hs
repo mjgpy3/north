@@ -13,9 +13,7 @@ data ParseError
   | UnterminatedFactorDef ParsableTerm
 
   | PatternMustBeginWithSquare Side ParsableTerm
-  | MissingPatternElement Side ParsableTerm
   | UnexpectedCharPattern Side ParsableTerm Char
-  | PatternTailMustBeFinal Side ParsableTerm
   | UnterminatedPattern Side ParsableTerm
   | UnexpectedPatternOp ParsableTerm
   | UnexpectedTrailingPatternChars ParsableTerm String

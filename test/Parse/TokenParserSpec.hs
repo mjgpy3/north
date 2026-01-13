@@ -11,6 +11,8 @@ import North.Parse.SourceLocation
 import North.Parse.TokenParser
 import North.Parse.Tokenize
 import North.Parse.Tokens
+import North.TopLevelTerms
+import North.Values
 import Test.Hspec
 
 spec :: Spec
@@ -19,38 +21,43 @@ spec =
         context "parsing pattern terms" $ do
             let
                 validStackPatternExamples =
-                    [ "[]"
-                    , "[*]"
-                    , "[a]"
-                    , "[a,*]"
-                    , "[a,b,c,*]"
-                    , "[a,b,c]"
+                    [ ("[]", StackPattern [] False)
+                    , ("[*]", StackPattern [] True)
+                    , ("[a]", StackPattern "a" False)
+                    , ("[a,*]", StackPattern "a" True)
+                    , ("[a,b,c,*]", StackPattern "abc" True)
+                    , ("[a,b,c]", StackPattern "abc" False)
+                    -- Commas are optional!
+                    , ("[abc]", StackPattern "abc" False)
+                    -- Commas are optional (so we can have as many as we want)!
+                    , ("[,,,,a,,b,c,,,,,]", StackPattern "abc" False)
                     ]
 
-            for_ validStackPatternExamples $ \sp -> do
-                let example = sp <> "?"
+            for_ validStackPatternExamples $ \(sp, expected) -> do
+                let ex = sp <> "?"
 
-                it ("parses " <> unpack example) $ do
-                    parseTokens [term example] `shouldSatisfy` isRight
+                successCase ex $ Check expected
 
-                casesThatBreak example
+                casesThatBreak ex
 
-            for_ validStackPatternExamples $ \sp1 ->
-                for_ validStackPatternExamples $ \sp2 -> do
+            for_ validStackPatternExamples $ \(sp1, expected1) ->
+                for_ validStackPatternExamples $ \(sp2, expected2) -> do
                     let txExample = sp1 <> "->" <> sp2
 
-                    it ("parses " <> unpack txExample) $ do
-                        parseTokens [term txExample] `shouldSatisfy` isRight
+                    successCase txExample $ Transform expected1 expected2
 
                     casesThatBreak txExample
 
                     let ctxExample = sp1 <> "?->" <> sp2
 
-                    it ("parses " <> unpack ctxExample) $ do
-                        parseTokens [term ctxExample] `shouldSatisfy` isRight
+                    successCase ctxExample $ CheckedTransform expected1 expected2
 
                     casesThatBreak ctxExample
   where
+    successCase example expected =
+        it ("parses " <> show expected <> " from " <> unpack example) $ do
+            parseTokens [term example] `shouldBe` Right [TopLevelValue $ SourceLocation 0 0 $ Pattern expected]
+
     casesThatBreak otherwiseGoodExample = do
         it ("fails to parse " <> unpack otherwiseGoodExample <> " when it has extraneous text at the end") $ do
             for_ ["a", ".", "?", "->", ","] $ \extra ->
