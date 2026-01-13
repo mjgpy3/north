@@ -167,12 +167,5 @@ data OpName
   | Transform'
   | CheckedTransform'
 
---  ('[':rest) -> parseLhs ( StackPattern [] False ) rest
---  _ -> Left $ PatternMustBeginWithSquare term
---  where
---    parseLhs :: StackPattern -> [Char] -> Either ParseError TransformCheck
---    parseLhs lhs = \case
-
-
 isPatternVertabra :: Char -> Bool
 isPatternVertabra c = Char.isAlpha c && Char.isLower c

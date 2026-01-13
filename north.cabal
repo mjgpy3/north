@@ -82,6 +82,7 @@ test-suite north-test
   main-is: Spec.hs
   other-modules:
       Parse.TokenizeSpec
+      Parse.TokenParserSpec
       Paths_north
   autogen-modules:
       Paths_north
