@@ -7,9 +7,9 @@ import North.Values
 
 typeOf :: Value -> Type
 typeOf = \case
-  Word _ -> TWord
-  NInt _ -> TInt
-  NFloat _ -> TFloat
-  NString _ -> TString
-  Unit -> TUnit
-  NBool _ -> TBool
+    Word _ -> TWord
+    NInt _ -> TInt
+    NFloat _ -> TFloat
+    NString _ -> TString
+    Unit -> TUnit
+    NBool _ -> TBool

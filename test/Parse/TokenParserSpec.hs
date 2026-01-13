@@ -27,10 +27,10 @@ spec =
                     , ("[a,*]", StackPattern "a" True)
                     , ("[a,b,c,*]", StackPattern "abc" True)
                     , ("[a,b,c]", StackPattern "abc" False)
-                    -- Commas are optional!
-                    , ("[abc]", StackPattern "abc" False)
-                    -- Commas are optional (so we can have as many as we want)!
-                    , ("[,,,,a,,b,c,,,,,]", StackPattern "abc" False)
+                    , -- Commas are optional!
+                      ("[abc]", StackPattern "abc" False)
+                    , -- Commas are optional (so we can have as many as we want)!
+                      ("[,,,,a,,b,c,,,,,]", StackPattern "abc" False)
                     ]
 
             for_ validStackPatternExamples $ \(sp, expected) -> do

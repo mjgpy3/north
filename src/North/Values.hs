@@ -1,31 +1,31 @@
 module North.Values (
-  Value(..)
-  , StackPattern (..)
-  , TransformCheck (..)
-  ) where
+    Value (..),
+    StackPattern (..),
+    TransformCheck (..),
+) where
 
-import qualified Data.Text as T
 import qualified Data.Scientific as Sci
+import qualified Data.Text as T
 
 -- | Shape of a stack
-data StackPattern = StackPattern {
-  vertabra :: [Char]
-  , hasTail :: Bool
-  }
-  deriving (Show, Eq)
+data StackPattern = StackPattern
+    { vertabra :: [Char]
+    , hasTail :: Bool
+    }
+    deriving (Show, Eq)
 
 data TransformCheck
-  = Check StackPattern
-  | Transform StackPattern StackPattern
-  | CheckedTransform StackPattern StackPattern
-  deriving (Show, Eq)
+    = Check StackPattern
+    | Transform StackPattern StackPattern
+    | CheckedTransform StackPattern StackPattern
+    deriving (Show, Eq)
 
 data Value
-  = Word T.Text
-  | NInt Integer
-  | NFloat Sci.Scientific
-  | NString T.Text
-  | NBool Bool
-  | Unit
-  | Pattern TransformCheck
-  deriving (Show, Eq)
+    = Word T.Text
+    | NInt Integer
+    | NFloat Sci.Scientific
+    | NString T.Text
+    | NBool Bool
+    | Unit
+    | Pattern TransformCheck
+    deriving (Show, Eq)
