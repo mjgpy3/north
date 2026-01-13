@@ -24,8 +24,6 @@ import North.Eval.DescribedFactor
 import North.Eval.Effects
 import North.Eval.Errors
 import North.Parse.SourceLocation
-import North.Types
-import North.Types.SloppySignatures
 import North.Values
 
 data Env
@@ -75,8 +73,11 @@ push :: Value -> EnvState -> EnvState
 push v envState =
     envState{stack = v : stack envState}
 
+addUserFactor :: a
 addUserFactor = undefined
+addVar :: a
 addVar = undefined
+addConst :: a
 addConst = undefined
 
 data Factor

@@ -13,3 +13,4 @@ typeOf = \case
     NString _ -> TString
     Unit -> TUnit
     NBool _ -> TBool
+    Pattern{} -> TPattern

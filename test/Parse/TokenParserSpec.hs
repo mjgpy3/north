@@ -1,6 +1,6 @@
 {-# LANGUAGE OverloadedStrings #-}
 
-module Parse.TokenParserSpec where
+module Parse.TokenParserSpec (spec) where
 
 import Data.Either (isLeft, isRight)
 import Data.Foldable (for_)
@@ -9,14 +9,18 @@ import qualified Data.Text as T
 import North.Parse.ParsableTerms
 import North.Parse.SourceLocation
 import North.Parse.TokenParser
-import North.Parse.Tokenize
-import North.Parse.Tokens
 import North.TopLevelTerms
 import North.Values
 import Test.Hspec
 
+import North.Parse
+
 spec :: Spec
-spec =
+spec = do
+    describe "parse" $ do
+        it "parses a fat example" $ do
+            parse ": FOO (hi -- there)\n  DUP [a,b,c]?->[a,*] []? * DUP 42 \"Here is a string with escaped quotes \"\"\";" `shouldSatisfy` isRight
+
     describe "parseTokens" $ do
         context "parsing pattern terms" $ do
             let
@@ -54,9 +58,9 @@ spec =
 
                     casesThatBreak ctxExample
   where
-    successCase example expected =
-        it ("parses " <> show expected <> " from " <> unpack example) $ do
-            parseTokens [term example] `shouldBe` Right [TopLevelValue $ SourceLocation 0 0 $ Pattern expected]
+    successCase ex expected =
+        it ("parses " <> show expected <> " from " <> unpack ex) $ do
+            parseTokens [term ex] `shouldBe` Right [TopLevelValue $ SourceLocation 0 0 $ Pattern expected]
 
     casesThatBreak otherwiseGoodExample = do
         it ("fails to parse " <> unpack otherwiseGoodExample <> " when it has extraneous text at the end") $ do

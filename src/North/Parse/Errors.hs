@@ -1,7 +1,6 @@
 module North.Parse.Errors (ParseError (..)) where
 
 import North.Parse.ParsableTerms
-import North.Parse.Tokens
 
 type Side = Either () ()
 

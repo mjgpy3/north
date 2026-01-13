@@ -1,1 +1,3 @@
+"Expected error:" say cr
+"Located (SourceLocation {line = 2, column = 9, located = TypeExpectedButGot' TNum (TString,NString ""foo"")})" say cr
 "foo" 42 +

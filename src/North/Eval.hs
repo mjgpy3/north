@@ -117,6 +117,7 @@ evalValue envState loc@(SourceLocation{located = value}) =
         NString _ -> pure (State $ push value envState, Right Unit)
         NBool _ -> pure (State $ push value envState, Right Unit)
         Unit -> pure (State $ push Unit envState, Right Unit)
+        Pattern{} -> error "TODO"
         Word name ->
             case lookupName envState name of
                 -- Known constants get evaluated and pushed to the stack

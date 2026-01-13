@@ -1,6 +1,6 @@
 {-# LANGUAGE OverloadedStrings #-}
 
-module Parse.TokenizeSpec where
+module Parse.TokenizeSpec (spec) where
 
 import North.Parse.SourceLocation
 import North.Parse.Tokenize

@@ -9,4 +9,5 @@ data Type
     | TWord
     | TUnit
     | TBool
+    | TPattern
     deriving (Show, Eq)
