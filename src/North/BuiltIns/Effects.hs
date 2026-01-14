@@ -18,6 +18,7 @@ builtInEffects =
                 SloppySignature
                     { stackIn = []
                     , stackOut = []
+                    , equivalentPatterns = Nothing
                     }
             , factorDefinition = Cr
             }
@@ -30,6 +31,7 @@ builtInEffects =
                 SloppySignature
                     { stackIn = [TString]
                     , stackOut = []
+                    , equivalentPatterns = Nothing
                     }
             , factorDefinition = PrintString
             }
@@ -37,11 +39,12 @@ builtInEffects =
     ,
         ( "."
         , DescribedFactor
-            { factorDescription = "Print the whatever is on top of the stack"
+            { factorDescription = "Print whatever is on top of the stack"
             , factorSloppySignature =
                 SloppySignature
                     { stackIn = [TVar 'a']
                     , stackOut = []
+                    , equivalentPatterns = Nothing
                     }
             , factorDefinition = Print
             }
@@ -54,6 +57,7 @@ builtInEffects =
                 SloppySignature
                     { stackIn = [TString]
                     , stackOut = [TString]
+                    , equivalentPatterns = Nothing
                     }
             , factorDefinition = ReadFile
             }
@@ -66,6 +70,7 @@ builtInEffects =
                 SloppySignature
                     { stackIn = []
                     , stackOut = []
+                    , equivalentPatterns = Nothing
                     }
             , factorDefinition = Trace
             }
@@ -78,6 +83,7 @@ builtInEffects =
                 SloppySignature
                     { stackIn = []
                     , stackOut = []
+                    , equivalentPatterns = Nothing
                     }
             , factorDefinition = TraceStack
             }
@@ -90,6 +96,7 @@ builtInEffects =
                 SloppySignature
                     { stackIn = [TBool]
                     , stackOut = []
+                    , equivalentPatterns = Nothing
                     }
             , factorDefinition = Assert
             }

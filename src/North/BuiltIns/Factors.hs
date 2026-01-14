@@ -24,6 +24,7 @@ builtInFactors =
                 SloppySignature
                     { stackIn = [TVar 'a']
                     , stackOut = [TVar 'a', TVar 'a']
+                    , equivalentPatterns = Just [Transform (StackPattern "a" True) (StackPattern "aa" True)]
                     }
             , factorDefinition = \envState ->
                 case pop envState of
@@ -39,6 +40,7 @@ builtInFactors =
                 SloppySignature
                     { stackIn = [TVar 'a']
                     , stackOut = []
+                    , equivalentPatterns = Just [Transform (StackPattern "a" True) (StackPattern [] True)]
                     }
             , factorDefinition = \envState ->
                 case pop envState of
@@ -54,6 +56,7 @@ builtInFactors =
                 SloppySignature
                     { stackIn = [TVar 'a', TVar 'b', TVar 'c']
                     , stackOut = [TVar 'c', TVar 'b', TVar 'a']
+                    , equivalentPatterns = Just [Transform (StackPattern "abc" True) (StackPattern "cba" True)]
                     }
             , factorDefinition = \envState -> either (second Left . (envState,)) ((,Right Unit)) $ do
                 (envState', a) <- pop envState
@@ -70,6 +73,7 @@ builtInFactors =
                 SloppySignature
                     { stackIn = [TVar 'a', TVar 'b']
                     , stackOut = [TVar 'a']
+                    , equivalentPatterns = Just [Transform (StackPattern "ab" True) (StackPattern "a" True)]
                     }
             , factorDefinition = \envState -> either (second Left . (envState,)) ((,Right Unit)) $ do
                 (envState', a) <- pop envState
@@ -80,11 +84,12 @@ builtInFactors =
     ,
         ( "tuck"
         , DescribedFactor
-            { factorDescription = "Duplicates the item directly below the top on top"
+            { factorDescription = "Duplicates the item directly below the top, on top"
             , factorSloppySignature =
                 SloppySignature
                     { stackIn = [TVar 'a', TVar 'b']
                     , stackOut = [TVar 'b', TVar 'a', TVar 'b']
+                    , equivalentPatterns = Just [Transform (StackPattern "ab" True) (StackPattern "bab" True)]
                     }
             , factorDefinition = \envState -> either (second Left . (envState,)) ((,Right Unit)) $ do
                 (envState', a) <- pop envState
@@ -100,6 +105,7 @@ builtInFactors =
                 SloppySignature
                     { stackIn = [TNum, TVar 'a', TVar 'b', TVar 'c']
                     , stackOut = [TVar 'd']
+                    , equivalentPatterns = Nothing
                     }
             , factorDefinition = \envState -> either (second Left . (envState,)) ((,Right Unit)) $ do
                 (envState'@EnvState{stack = st}, a) <- pop envState
@@ -119,6 +125,7 @@ builtInFactors =
                 SloppySignature
                     { stackIn = [TNum]
                     , stackOut = [TNum, TNum]
+                    , equivalentPatterns = Nothing
                     }
             , factorDefinition = \envState -> either (second Left . (envState,)) ((,Right Unit)) $ do
                 (envState', a) <- pop envState
@@ -141,6 +148,7 @@ builtInFactors =
                 SloppySignature
                     { stackIn = [TNum]
                     , stackOut = [TNum, TNum]
+                    , equivalentPatterns = Nothing
                     }
             , factorDefinition = \envState -> either (second Left . (envState,)) ((,Right Unit)) $ do
                 (envState', a) <- pop envState
@@ -163,6 +171,7 @@ builtInFactors =
                 SloppySignature
                     { stackIn = [TNum]
                     , stackOut = [TNum, TNum]
+                    , equivalentPatterns = Nothing
                     }
             , factorDefinition = \envState -> either (second Left . (envState,)) ((,Right Unit)) $ do
                 (envState', a) <- pop envState
@@ -185,6 +194,7 @@ builtInFactors =
                 SloppySignature
                     { stackIn = [TNum]
                     , stackOut = [TNum]
+                    , equivalentPatterns = Nothing
                     }
             , factorDefinition = \envState -> either (second Left . (envState,)) ((,Right Unit)) $ do
                 (envState', a) <- pop envState
@@ -202,6 +212,7 @@ builtInFactors =
                 SloppySignature
                     { stackIn = [TNum]
                     , stackOut = [TNum]
+                    , equivalentPatterns = Nothing
                     }
             , factorDefinition = \envState -> either (second Left . (envState,)) ((,Right Unit)) $ do
                 (envState', a) <- pop envState
@@ -219,11 +230,29 @@ builtInFactors =
                 SloppySignature
                     { stackIn = [TVar 'a', TVar 'b']
                     , stackOut = [TBool]
+                    , equivalentPatterns = Just [Check (StackPattern "aa" True), Transform (StackPattern "abc" True) (StackPattern "a" True)]
                     }
             , factorDefinition = \envState -> either (second Left . (envState,)) ((,Right Unit)) $ do
                 (envState', a) <- pop envState
                 (envState'', b) <- pop envState'
                 pure $ push (NBool $ a == b) envState''
+            }
+        )
+    ,
+        ( "not"
+        , DescribedFactor
+            { factorDescription = "Negate a boolean"
+            , factorSloppySignature =
+                SloppySignature
+                    { stackIn = [TBool]
+                    , stackOut = [TBool]
+                    , equivalentPatterns = Nothing
+                    }
+            , factorDefinition = \envState -> either (second Left . (envState,)) ((,Right Unit)) $ do
+                (envState', a) <- pop envState
+                case a of
+                    NBool b -> pure $ push (NBool $ not b) envState'
+                    nonBool -> Left $ TBool `TypeExpectedButGot'` (typeOf nonBool, nonBool)
             }
         )
     ]

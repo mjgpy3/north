@@ -81,6 +81,7 @@ test-suite north-test
   type: exitcode-stdio-1.0
   main-is: Spec.hs
   other-modules:
+      Parse.IntegrationSpec
       Parse.TokenizeSpec
       Parse.TokenParserSpec
       Paths_north

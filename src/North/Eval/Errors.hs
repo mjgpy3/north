@@ -10,4 +10,7 @@ data EvalError
     | StackUnderflow
     | Located (SourceLocation EvalError)
     | AssertionFailed
+    | InputPatternHasNoTailButMoreStackRemains
+    | PatternMatchFailureNamesNotEqual Char Value Value
+    | PatternUnboundRhsName Char
     deriving (Show, Eq)

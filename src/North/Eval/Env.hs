@@ -10,6 +10,7 @@ module North.Eval.Env (
     addConst,
     pop,
     push,
+    drain,
     lookupName,
     NameLookupResult (..),
     BuiltInFactor (..),
@@ -72,6 +73,10 @@ pop = \case
 push :: Value -> EnvState -> EnvState
 push v envState =
     envState{stack = v : stack envState}
+
+drain :: EnvState -> EnvState
+drain envState =
+    envState{stack = []}
 
 addUserFactor :: a
 addUserFactor = undefined

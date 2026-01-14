@@ -1,3 +1,0 @@
-"Expected error:" say cr
-"Located (SourceLocation {line = 2, column = 6, located = AssertionFailed})" say cr
-false assert

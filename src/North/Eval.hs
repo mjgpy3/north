@@ -137,9 +137,44 @@ evalValue envState loc@(SourceLocation{located = value}) =
 evalPattern :: EnvState -> SourceLocation Value -> TransformCheck -> (Env, Either EvalError Value)
 evalPattern envState _loc = \case
     Check sp -> (State $ push (NBool $ evalCheck Map.empty (stack envState) sp) envState, Right Unit)
-    Transform{} -> error "TODO"
-    CheckedTransform{} -> error "TODO"
+    Transform lhs rhs -> evalTransform lhs rhs
+    CheckedTransform lhs rhs ->
+        if evalCheck Map.empty (stack envState) lhs
+            then evalTransform lhs rhs
+            else (State envState, Right Unit)
   where
+    evalTransform lhs rhs =
+        let
+            (envState', namesOrError) = collectNames Map.empty envState lhs
+         in
+            case namesOrError of
+                Right names -> performTransform names envState' rhs
+                Left err -> (State envState, Left err)
+
+    performTransform names es sp =
+        transformReversed names (if hasTail sp then es else drain es) $ reverse $ vertabra sp
+
+    transformReversed names es = \case
+        [] -> (State es, Right Unit)
+        (n : ns) ->
+            case Map.lookup n names of
+                Nothing -> (State es, Left $ PatternUnboundRhsName n)
+                Just v -> transformReversed names (push v es) ns
+
+    collectNames names es@EnvState{stack = []} StackPattern{vertabra = []} = (es, Right names)
+    collectNames names es@EnvState{stack = (_ : _)} StackPattern{vertabra = [], hasTail = True} = (es, Right names)
+    collectNames _ es@EnvState{stack = (_ : _)} StackPattern{vertabra = [], hasTail = False} = (es, Left InputPatternHasNoTailButMoreStackRemains)
+    collectNames names es sp@StackPattern{vertabra = (n : ns)} =
+        case pop es of
+            Left err -> (es, Left err)
+            Right (es', v) ->
+                case Map.lookup n names of
+                    Nothing -> collectNames (Map.insert n v names) es' sp{vertabra = ns}
+                    Just known ->
+                        if known == v
+                            then collectNames names es' sp{vertabra = ns}
+                            else (es, Left $ PatternMatchFailureNamesNotEqual n known v)
+
     evalCheck _ [] StackPattern{vertabra = [], hasTail = False} = True
     evalCheck _ _ StackPattern{vertabra = [], hasTail = True} = True
     evalCheck _ (_ : _) StackPattern{vertabra = [], hasTail = False} = False
@@ -149,7 +184,7 @@ evalPattern envState _loc = \case
             Nothing -> evalCheck (Map.insert n v names) vs sp{vertabra = ns}
             Just known ->
                 if known == v
-                    then evalCheck (Map.insert n v names) vs sp{vertabra = ns}
+                    then evalCheck names vs sp{vertabra = ns}
                     else False
 
 addLocationToError :: (Functor f, Bifunctor p1, Bifunctor p2) => SourceLocation a1 -> f (p1 a2 (p2 EvalError c)) -> f (p1 a2 (p2 EvalError c))

@@ -1,5 +1,118 @@
 \ Empty stack check
 []?
 assert
+[*]?
+assert
+
+\ Singleton stack check
+42
+[a]?
+assert
+
+\ Empty negative test
+[]?
+not
+assert
+
+\ Singleton stack, with tail check
+[a,*]?
+assert
+
+\ Prolog patterns
+42
+[a,a]?
+assert
+
+\ Different names work too
+[a,b]?
+assert
+
+\ Prolog patterns negative test 
+99
+[a,a]?
+not
+assert
+
+\ Empty with tail matches any stack
+[*]?
+assert
+
+\ More complicated match test
+42
+[a,b,a,a]?
+assert
+
+\ Commas are optional
+[abaa*]?
+assert
+
+\ Drop 2
+[ab*]->[*]
+=
+assert
+
+\ Bigger transform
+4
+3
+2
+1
+
+[abcd]->[ddacd]
+
+4 = assert
+4 = assert
+1 = assert
+3 = assert
+4 = assert
+
+\ Tail preservation
+4 3 2 1
+
+[a*]->[aa*]
+
+1 = assert
+1 = assert
+2 = assert
+3 = assert
+4 = assert
+
+[]? assert
+
+\ Checked
+42 35
+
+\ Won't match, but ? means just skip it
+[aa]?->[aaaaaaaaa]
+
+[*]->[]
+
+\ Ensure checked transforms match normal transform tests
+
+\\ Bigger transform
+4
+3
+2
+1
+
+[abcd]?->[ddacd]
+
+4 = assert
+4 = assert
+1 = assert
+3 = assert
+4 = assert
+
+\\ Tail preservation
+4 3 2 1
+
+[a*]?->[aa*]
+
+1 = assert
+1 = assert
+2 = assert
+3 = assert
+4 = assert
+
+[]? assert
 
 "(PASS)" say cr
