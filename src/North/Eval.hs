@@ -7,6 +7,7 @@ module North.Eval (
 
 import Data.Bifunctor (Bifunctor, first, second)
 import Data.Foldable (for_)
+import qualified Data.Map.Strict as Map
 import qualified Data.Text as T
 import qualified Data.Text.IO as TIO
 import North.Eval.DescribedFactor
@@ -117,7 +118,7 @@ evalValue envState loc@(SourceLocation{located = value}) =
         NString _ -> pure (State $ push value envState, Right Unit)
         NBool _ -> pure (State $ push value envState, Right Unit)
         Unit -> pure (State $ push Unit envState, Right Unit)
-        Pattern{} -> error "TODO"
+        Pattern pat -> pure $ evalPattern envState loc pat
         Word name ->
             case lookupName envState name of
                 -- Known constants get evaluated and pushed to the stack
@@ -132,6 +133,24 @@ evalValue envState loc@(SourceLocation{located = value}) =
                     pure (RequestedEffect (fmap (const effect) loc) envState, Right Unit)
                 -- Unknown names go on the stack
                 NotFound -> pure (State $ push value envState, Right Unit)
+
+evalPattern :: EnvState -> SourceLocation Value -> TransformCheck -> (Env, Either EvalError Value)
+evalPattern envState _loc = \case
+    Check sp -> (State $ push (NBool $ evalCheck Map.empty (stack envState) sp) envState, Right Unit)
+    Transform{} -> error "TODO"
+    CheckedTransform{} -> error "TODO"
+  where
+    evalCheck _ [] StackPattern{vertabra = [], hasTail = False} = True
+    evalCheck _ _ StackPattern{vertabra = [], hasTail = True} = True
+    evalCheck _ (_ : _) StackPattern{vertabra = [], hasTail = False} = False
+    evalCheck _ [] StackPattern{vertabra = _ : _} = False
+    evalCheck names (v : vs) sp@(StackPattern{vertabra = n : ns}) =
+        case Map.lookup n names of
+            Nothing -> evalCheck (Map.insert n v names) vs sp{vertabra = ns}
+            Just known ->
+                if known == v
+                    then evalCheck (Map.insert n v names) vs sp{vertabra = ns}
+                    else False
 
 addLocationToError :: (Functor f, Bifunctor p1, Bifunctor p2) => SourceLocation a1 -> f (p1 a2 (p2 EvalError c)) -> f (p1 a2 (p2 EvalError c))
 addLocationToError loc = fmap (second (first (\err -> Located $ fmap (const err) loc)))
