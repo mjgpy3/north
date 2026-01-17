@@ -1,4 +1,6 @@
 {-# LANGUAGE LambdaCase #-}
+{-# LANGUAGE OverloadedStrings #-}
+{-# LANGUAGE TupleSections #-}
 
 module North.Eval (
     eval,
@@ -26,20 +28,34 @@ evalMany (RequestedEffect effect envState) terms = do
     case result of
         Left err -> pure $ (env', Left err)
         Right _ -> evalMany env' terms
-evalMany env terms =
+evalMany env@(State envState) terms =
     case terms of
-        [] -> pure $ (env, Right Unit)
+        -- End eval if we run out of things to run
+        [] -> pure (env, Right Unit)
+        -- End eval if we hit "done"
+        TopLevelValue (SourceLocation{located = Word "done"}) : _ -> pure (env, Right Unit)
+        -- Recurse if we hit "again"
+        TopLevelValue loc@(SourceLocation{located = Word "again"}) : _ ->
+            case currentFactor envState of
+              Nothing -> pure (env, Left $ AgainCalledOutsideOfFactor $ const () <$> loc )
+              Just factorName -> evalMany env [TopLevelValue $ (const $ Word factorName ) <$> loc]
+        -- Evaluate the next term
         term : terms' -> do
             (env', result) <- eval env term
             case result of
                 Left err -> pure (env', Left err)
-                Right _v -> evalMany env' terms'
+                Right (_, Nothing) -> evalMany env' terms'
+                Right (_, Just SkipNext) -> evalMany env' $ drop 1 terms'
 
 evalManyValues :: EnvState -> [SourceLocation Value] -> IO (Env, Either EvalError Value)
 evalManyValues envState =
     evalMany (State envState) . fmap TopLevelValue
 
-eval :: Env -> TopLevelTerm -> IO (Env, Either EvalError Value)
+-- Special "effects" performed by built-in conditionals
+data Consequent
+    = SkipNext
+
+eval :: Env -> TopLevelTerm -> IO (Env, Either EvalError (Value, Maybe Consequent))
 eval env term =
     case env of
         RequestedEffect effect envState -> do
@@ -49,8 +65,14 @@ eval env term =
                 Right _ -> eval env' term
         State envState ->
             case term of
-                TopLevelValue v -> evalValue envState v
-                WordDef name body -> pure $ addUserFactor name body envState
+                TopLevelValue loc@(SourceLocation{located = Word "if"}) -> do
+                    case pop envState of
+                        Left err -> pure (State envState, Left err)
+                        Right (envState', NBool True) -> pure (State envState', Right (Unit, Nothing))
+                        Right (envState', NBool False) -> pure (State envState', Right (Unit, Just SkipNext))
+                        Right (envState', nonBool) -> pure (State envState', Left $ TypeExpectedButGot (const TBool <$> loc) (typeOf nonBool, nonBool))
+                TopLevelValue v -> fmap (second (,Nothing)) <$> evalValue envState v
+                WordDef name body -> pure $ second (,Nothing) <$> addUserFactor name body envState
                 VarDef name -> pure $ addVar name envState
                 ConstDef name value -> pure $ addConst name value envState
 
@@ -125,7 +147,7 @@ evalValue envState loc@(SourceLocation{located = value}) =
                 FoundConstant constValue -> pure (State $ push constValue envState, Right Unit)
                 -- Know user factors get run
                 FoundFactor (UserFactor values) ->
-                    evalManyValues envState values
+                    evalManyValues envState{currentFactor = Just name} values
                 FoundFactor (NonUserFactor (BuiltIn (DescribedFactor{factorDefinition = builtIn}))) ->
                     pure $ first State $ builtIn envState
                 -- Know effects get requested

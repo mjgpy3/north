@@ -59,60 +59,67 @@ spec =
                     "36 decr" `shouldWorkAndResultInPeek` NInt 35
 
             describe "patterns" $ do
-              it "empty stack check" $ do
+                it "empty stack check" $ do
                     "[]?" `shouldWorkAndResultInStack` [NBool True]
                     "[*]?" `shouldWorkAndResultInStack` [NBool True]
 
-              it "non-empty stack check" $ do
+                it "non-empty stack check" $ do
                     "1 []?" `shouldWorkAndResultInStack` [NBool False, NInt 1]
 
-              it "singleton stack check" $ do
+                it "singleton stack check" $ do
                     "42 [a]?" `shouldWorkAndResultInStack` [NBool True, NInt 42]
 
-              it "singleton stack with tail check" $ do
+                it "singleton stack with tail check" $ do
                     "42 [a*]?" `shouldWorkAndResultInStack` [NBool True, NInt 42]
 
-              it "prolog patterns" $ do
+                it "prolog patterns" $ do
                     "42 42 [aa]?" `shouldWorkAndResultInPeek` NBool True
                     "42 99 [aa]?" `shouldWorkAndResultInPeek` NBool False
 
-              it "different names are okay" $ do
+                it "different names are okay" $ do
                     "42 42 [ab]?" `shouldWorkAndResultInPeek` NBool True
 
-              it "empty with tail matches any" $ do
+                it "empty with tail matches any" $ do
                     "42 42 [*]?" `shouldWorkAndResultInPeek` NBool True
 
-              it "more complicated match" $ do
+                it "more complicated match" $ do
                     "1 2 1 1 [aaba]?" `shouldWorkAndResultInPeek` NBool True
 
-              it "commas are optional" $ do
+                it "commas are optional" $ do
                     "1 2 1 1 [a,a,b,a]?" `shouldWorkAndResultInPeek` NBool True
                     "1 2 1 1 [,,,a,,ab,,,a,]?" `shouldWorkAndResultInPeek` NBool True
 
-              it "drop 2" $ do
+                it "drop 2" $ do
                     "4 3 2 1 [ab*]->[*]" `shouldWorkAndResultInStack` [NInt 3, NInt 4]
 
-              it "bigger transform" $ do
+                it "bigger transform" $ do
                     "4 3 2 1 [abcd]->[ddacd]" `shouldWorkAndResultInStack` [NInt 4, NInt 4, NInt 1, NInt 3, NInt 4]
 
-              it "tail preservation" $ do
+                it "tail preservation" $ do
                     "4 3 2 1 [a*]->[aa*]" `shouldWorkAndResultInStack` [NInt 1, NInt 1, NInt 2, NInt 3, NInt 4]
 
-              it "checked without match (? means just skip it!)" $ do
-                "42 [aa]?->[aaaaaaaaa]" `shouldWorkAndResultInStack` [NInt 42]
+                it "checked without match (? means just skip it!)" $ do
+                    "42 [aa]?->[aaaaaaaaa]" `shouldWorkAndResultInStack` [NInt 42]
 
-              it "drain" $ do
-                "1 2 3 4 [*]->[]" `shouldWorkAndResultInStack` []
+                it "drain" $ do
+                    "1 2 3 4 [*]->[]" `shouldWorkAndResultInStack` []
 
-              it "bigger checked transform" $ do
+                it "bigger checked transform" $ do
                     "4 3 2 1 [abcd]?->[ddacd]" `shouldWorkAndResultInStack` [NInt 4, NInt 4, NInt 1, NInt 3, NInt 4]
 
-              it "patterns can emulate equality" $ do
+                it "patterns can emulate equality" $ do
                     "1 1 =" `shouldWorkAndResultInStack` [NBool True]
                     "1 1 [aa*]? [abc*]->[a*]" `shouldWorkAndResultInStack` [NBool True]
 
                     "1 2 =" `shouldWorkAndResultInStack` [NBool False]
                     "1 2 [aa*]? [abc*]->[a*]" `shouldWorkAndResultInStack` [NBool False]
+
+            describe "user-defined factors" $ do
+                it "works for a very basic definition" $ do
+                    ": double 2 * ; 21 double" `shouldWorkAndResultInStack` [NInt 42]
+
+                it "works for multiple applications" $ do
+                    ": double 2 * ; 5 double double" `shouldWorkAndResultInStack` [NInt 20]
 
             describe "expected failures" $ do
                 it "bad name in pattern" $

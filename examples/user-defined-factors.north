@@ -1,7 +1,32 @@
+\ Simple doubling function
 : double 2 * ;
 
 21 double
 42 = assert
 
+\ Can be applied multiple times
 5 double double
 20 = assert
+
+: count-until-aux \ count needle rest -> count
+
+[c,n,x,*]->[x,n,c,n,*]
+
+= \ [bool,c,n,*]
+
+if done
+
+incr
+
+again
+
+;
+
+\ Recursion and user-defined factors that call others, count number of element below peek until peek is found again
+: count-until 0 count-until-aux ;
+
+needle 1 2 3 4 5
+
+needle count-until
+
+trace-stack

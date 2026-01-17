@@ -40,6 +40,7 @@ emptyEnvState =
         , constants = Map.empty
         , variables = Map.empty
         , effects = Map.empty
+        , currentFactor = Nothing
         }
 
 data EnvState = EnvState
@@ -50,6 +51,7 @@ data EnvState = EnvState
     , constants :: Map.Map Text Value
     , variables :: Map.Map Text Value
     , effects :: Map.Map Text (DescribedFactor Effect)
+    , currentFactor :: Maybe Text
     }
 
 lookupName :: EnvState -> Text -> NameLookupResult
@@ -67,11 +69,11 @@ data NameLookupResult
 
 toNamed :: NameLookupResult -> Maybe Named
 toNamed = \case
-  FoundConstant {} -> Just NamedConstant
-  FoundFactor (NonUserFactor {}) -> Just NamedBuiltInFactor
-  FoundFactor (UserFactor {}) -> Just NamedUserFactor
-  FoundEffect {} -> Just NamedEffect
-  NotFound -> Nothing
+    FoundConstant{} -> Just NamedConstant
+    FoundFactor (NonUserFactor{}) -> Just NamedBuiltInFactor
+    FoundFactor (UserFactor{}) -> Just NamedUserFactor
+    FoundEffect{} -> Just NamedEffect
+    NotFound -> Nothing
 
 pop :: EnvState -> Either EvalError (EnvState, Value)
 pop = \case
@@ -88,9 +90,9 @@ drain envState =
 
 addUserFactor :: SourceLocation Text -> [SourceLocation Value] -> EnvState -> (Env, Either EvalError Value)
 addUserFactor name body envState =
-  case toNamed $ lookupName envState (located name) of
-    Just named -> (State envState, Left $ NameAlreadyDefined (located name) named)
-    Nothing -> (State $ envState { factors = Map.insert (located name) (UserFactor body) $ factors envState }, Right Unit)
+    case toNamed $ lookupName envState (located name) of
+        Just named -> (State envState, Left $ NameAlreadyDefined (located name) named)
+        Nothing -> (State $ envState{factors = Map.insert (located name) (UserFactor body) $ factors envState}, Right Unit)
 
 addVar :: a
 addVar = undefined
