@@ -20,7 +20,7 @@ module North.Eval.Env (
 import Control.Applicative ((<|>))
 import qualified Data.Map.Strict as Map
 import Data.Maybe (fromMaybe)
-import qualified Data.Text as T
+import Data.Text (Text)
 import North.Eval.DescribedFactor
 import North.Eval.Effects
 import North.Eval.Errors
@@ -46,13 +46,13 @@ data EnvState = EnvState
     { stack :: [Value]
     , tempStack :: [Value]
     , -- TODO , otherStacks :: Map.Map T.Text [Value]
-      factors :: Map.Map T.Text Factor
-    , constants :: Map.Map T.Text Value
-    , variables :: Map.Map T.Text Value
-    , effects :: Map.Map T.Text (DescribedFactor Effect)
+      factors :: Map.Map Text Factor
+    , constants :: Map.Map Text Value
+    , variables :: Map.Map Text Value
+    , effects :: Map.Map Text (DescribedFactor Effect)
     }
 
-lookupName :: EnvState -> T.Text -> NameLookupResult
+lookupName :: EnvState -> Text -> NameLookupResult
 lookupName env name =
     fromMaybe NotFound $
         (fmap FoundConstant . Map.lookup name . constants) env
@@ -64,6 +64,14 @@ data NameLookupResult
     | FoundFactor Factor
     | FoundEffect Effect
     | NotFound
+
+toNamed :: NameLookupResult -> Maybe Named
+toNamed = \case
+  FoundConstant {} -> Just NamedConstant
+  FoundFactor (NonUserFactor {}) -> Just NamedBuiltInFactor
+  FoundFactor (UserFactor {}) -> Just NamedUserFactor
+  FoundEffect {} -> Just NamedEffect
+  NotFound -> Nothing
 
 pop :: EnvState -> Either EvalError (EnvState, Value)
 pop = \case
@@ -78,8 +86,12 @@ drain :: EnvState -> EnvState
 drain envState =
     envState{stack = []}
 
-addUserFactor :: a
-addUserFactor = undefined
+addUserFactor :: SourceLocation Text -> [SourceLocation Value] -> EnvState -> (Env, Either EvalError Value)
+addUserFactor name body envState =
+  case toNamed $ lookupName envState (located name) of
+    Just named -> (State envState, Left $ NameAlreadyDefined (located name) named)
+    Nothing -> (State $ envState { factors = Map.insert (located name) (UserFactor body) $ factors envState }, Right Unit)
+
 addVar :: a
 addVar = undefined
 addConst :: a

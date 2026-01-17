@@ -1,0 +1,7 @@
+: double 2 * ;
+
+21 double
+42 = assert
+
+5 double double
+20 = assert
