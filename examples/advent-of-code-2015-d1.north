@@ -1,0 +1,47 @@
+\ Small example filename to the stack
+"./d1.txt"
+
+\ Read the file (as string) to stack
+read-file
+
+\ Define custom factor
+\ Input: count char*
+\ Output: [count, "\n"]
+: final-floor
+
+\ Done if we only have count and newline char
+[ab]? if done
+
+\ Swap top two
+[ab*]->[ba*]
+
+\ Is top character a close-paren? (No popping here because it's a pattern)
+")" [aa*]?
+
+\ Remove the character we pushed for the check
+[bivc*]->[bcv*]
+
+\ Decrement count if they're the same
+if decr
+
+\ Swap count and paren again
+[ab*]->[ba*]
+
+\ If paren is open paren, increment (`=` check pops)
+"(" = if incr
+
+\ Recurse
+again
+;
+
+\ Put each character of the string onto the stack as a single-char string
+splat-string
+
+\ Our starting floor is 0
+0
+
+\ Invoke user-defined factor
+final-floor
+
+\ Fail if we don't get back the expected floor
+-3 = assert

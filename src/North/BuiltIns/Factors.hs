@@ -255,4 +255,21 @@ builtInFactors =
                     nonBool -> Left $ TBool `TypeExpectedButGot'` (typeOf nonBool, nonBool)
             }
         )
+    ,
+        ( "splat-string"
+        , DescribedFactor
+            { factorDescription = "Put each character of a string on the stack as its own string"
+            , factorSloppySignature =
+                SloppySignature
+                    { stackIn = [TString]
+                    , stackOut = [TString {- Really many -}]
+                    , equivalentPatterns = Nothing
+                    }
+            , factorDefinition = \envState -> either (second Left . (envState,)) ((,Right Unit)) $ do
+                (envState', a) <- pop envState
+                case a of
+                    NString b -> pure $ T.foldr' (push . NString . T.singleton) envState' b
+                    nonString -> Left $ TString `TypeExpectedButGot'` (typeOf nonString, nonString)
+            }
+        )
     ]
