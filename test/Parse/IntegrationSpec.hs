@@ -37,6 +37,9 @@ spec =
                 it "rot" $
                     "4 3 2 1 rot" `shouldWorkAndResultInStack` [NInt 3, NInt 2, NInt 1, NInt 4]
 
+                it "swp" $
+                    "4 3 2 1 swp" `shouldWorkAndResultInStack` [NInt 2, NInt 1, NInt 3, NInt 4]
+
                 it "nip" $
                     "1 2 nip" `shouldWorkAndResultInStack` [NInt 2]
 

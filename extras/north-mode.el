@@ -4,7 +4,7 @@
 
 (defconst north-font-lock-keywords-1
   (list
-   '("\\<dup\\|drop\\|rot\\|nip\\|tuck\\|pick\\|incr\\|decr\\|not\\|splat-string\\>" . font-lock-builtin-face)
+   '("\\<dup\\|swp\\|drop\\|rot\\|nip\\|tuck\\|pick\\|not\\|splat-string\\>" . font-lock-builtin-face)
    '("\\('\\w*'\\)" . font-lock-variable-name-face))
   "Minimal highlighting expressions for North mode")
 
@@ -18,7 +18,13 @@
 (defconst north-font-lock-keywords-3
   (append north-font-lock-keywords-2
           (list
-           '("\\<done\\|again\\|if\\>" . font-lock-constant-face)))
+           '("\\<done\\|again\\|if\\>" . font-lock-constant-face)
+           '(":\s+[A-Za-z0-9-_]*" . font-lock-function-name-face)
+           '("\\+|\\-\\|\\*" . font-lock-operator-face)
+           '(";" . font-lock-function-name-face)
+           '("-?[0-9]+\\.?[0-9]*" . font-lock-number-face)
+           '("\\[\\|\\]" . font-lock-bracket-face)
+           ))
   "Balls-out highlighting in North mode")
 
 (defvar north-font-lock-keywords north-font-lock-keywords-3

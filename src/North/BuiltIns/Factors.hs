@@ -33,6 +33,22 @@ builtInFactors =
             }
         )
     ,
+        ( "swp"
+        , DescribedFactor
+            { factorDescription = "Swap the top two elements on the stack"
+            , factorSloppySignature =
+                SloppySignature
+                    { stackIn = [TVar 'a', TVar 'b']
+                    , stackOut = [TVar 'b', TVar 'a']
+                    , equivalentPatterns = Just [Transform (StackPattern "ab" True) (StackPattern "ba" True)]
+                    }
+            , factorDefinition = \envState -> either (second Left . (envState,)) ((,Right Unit)) $ do
+                (envState', a) <- pop envState
+                (envState'', b) <- pop envState'
+                pure $ push b $ push a $ envState''
+            }
+        )
+    ,
         ( "drop"
         , DescribedFactor
             { factorDescription = "Drop top element"
